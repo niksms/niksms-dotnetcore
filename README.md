@@ -13,10 +13,10 @@ Install-Package Newtonsoft.Json
 <p>Now use bellow libraries in your code:</p>
 
 ```c#
-using System.Text;
+
 using System.Net;
-using System.Collections.Specialized;
 using Newtonsoft.Json;
+using System.IO;
 
 ```
 ## Usage
@@ -25,50 +25,60 @@ using Newtonsoft.Json;
 <p>You can Send Single SMS using bellow Code</p>
 
 ```c#
+string BaseUrl = "http://api.niksms.com/";
 
-string url =  "http://niksms.com/SingleSms";
-using (var client = new WebClient())
+string apiKey = "Your Api Key";
+string message = "Yout Text Message To Send";
+string senderNumber = ""; // Your private line to send SMS Or Niksms public lines
+string mobile = ""; // Reciever phone number
+
+string url = BaseUrl + $"SingleSms?apiKey={apiKey}&senderNumber={senderNumber}&message={message}&mobile={mobile}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-    values["message"] = "Yout Text Message To Send";
-    values["senderNumber"] = ""; // Your private line to send SMS Or Niksms public lines
-    values["mobile"] = ""; // Reciever phone number
-	
-    var response = client.UploadValues(url, values);
-	
-    var responseString = Encoding.Default.GetString(response);
-    if(int.Parse(responseString) > 0)
-        Console.WriteLine("SMS Successfully Sent");
+    string result = reader.ReadToEnd();
+    string NikId = JsonConvert.DeserializeObject<string>(result);
+    if(!NikId.Equals("-1"))
+        Console.WriteLine($"Sms has been Sent. NikId is: {NikId}");
     else
-        Console.WriteLine("Can not send Sms");
+        Console.WriteLine($"Error occured.");
 }
 
 ```
-
 
 ### Send Bulk SMS
 <p>You can Send Bulk Sms using bellow Code</p>
 
 ```c#
 
-string url =  "http://niksms.com/GroupSms";
-using (var client = new WebClient())
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
+string message= "Yout Text Message To Send";
+string senderNumber= ""; // Your private line to send SMS Or Niksms public lines
+string mobiles = ""; // Recievers phone number sepereated by , (comma)
+
+string url = BaseUrl + $"SingleSms?apiKey={apiKey}&senderNumber={senderNumber}&message={message}&mobiles={mobiles}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-    values["message"] = "Yout Text Message To Send";
-    values["senderNumber"] = ""; // Your private line to send SMS Or Niksms public lines
-    values["mobiles"] = ""; // Recievers phone number sepereated by , (comma)
-	
-    var response = client.UploadValues(url, values);
-	
-    var responseString = Encoding.Default.GetString(response);
-    if(int.Parse(responseString) > 0)
-        Console.WriteLine("SMS Successfully Sent");
+    string result = reader.ReadToEnd();
+    string NikId = JsonConvert.DeserializeObject<string>(result);
+    if(!NikId.Equals("-1"))
+        Console.WriteLine($"Sms has been Sent. NikId is: {NikId}");
     else
-        Console.WriteLine("Can not send Sms");
+        Console.WriteLine($"Error occured.");
 }
+
 
 
 ```
@@ -78,22 +88,28 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/PtpSms";
-using (var client = new WebClient())
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
+string senderNumber= ""; // Your private line to send SMS Or Niksms public lines
+string mobiles = ""; // Recievers phone number sepereated by , (comma)
+string messages = ""; // Messages sepreated by | (vertical bar)
+	
+string url = BaseUrl + $"PtpSms?apiKey={apiKey}&senderNumber={senderNumber}&messages={messages}&mobiles={mobiles}";
+
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-    values["senderNumber"] = ""; // Your private line to send SMS Or Niksms public lines
-    values["mobiles"] = ""; // Recievers phone number sepereated by , (comma)
-    values["messages"] = ""; // Messages sepreated by | (vertical bar)
-	
-    var response = client.UploadValues(url, values);
-	
-    var responseString = Encoding.Default.GetString(response);
-    if(int.Parse(responseString) > 0)
-        Console.WriteLine("SMS Successfully Sent");
+    string result = reader.ReadToEnd();
+    string NikId = JsonConvert.DeserializeObject<string>(result);
+    if(!NikId.Equals("-1"))
+        Console.WriteLine($"Sms has been Sent. NikId is: {NikId}");
     else
-        Console.WriteLine("Can not send Sms");
+        Console.WriteLine($"Error occured.");
 }
 
 ```
@@ -104,16 +120,20 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetSenderNumbers";
-using (var client = new WebClient())
-{
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
 	
-    var response = client.UploadValues(url, values);
+string url = BaseUrl + $"GetSenderNumbers?apiKey={apiKey}";
 
-    var responseString = Encoding.Default.GetString(response);
-    var listOfNumbers = JsonConvert.DeserializeObject<List<string>>(responseString);
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
+{
+    string result = reader.ReadToEnd();
+    List<string> senderNumbers = JsonConvert.DeserializeObject<List<string>>(result);
 }
 
 ```
@@ -123,15 +143,20 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetCredit";
-using (var client = new WebClient())
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
+	
+string url = BaseUrl + $"GetCredit?apiKey={apiKey}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-	
-    var response = client.UploadValues(url, values);
-	
-    var yourCredit = Encoding.Default.GetString(response);
+    string result = reader.ReadToEnd();
+    string credit = int.Parse(JsonConvert.DeserializeObject<string>(result));
 }
 
 ```
@@ -141,15 +166,21 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetExpireDate";
-using (var client = new WebClient())
+
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
+	
+string url = BaseUrl + $"GetExpireDate?apiKey={apiKey}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-	
-    var response = client.UploadValues(url, values);
-	
-    var expireDate = Encoding.Default.GetString(response);
+    string result = reader.ReadToEnd();
+    DateTime expireTime = DateTime.Parse(JsonConvert.DeserializeObject<string>(result));
 }
 
 ```
@@ -159,15 +190,20 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetServertime";
-using (var client = new WebClient())
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
+	
+string url = BaseUrl + $"GetServertime?apiKey={apiKey}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
 {
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
-	
-    var response = client.UploadValues(url, values);
-	
-    var serverTime = Encoding.Default.GetString(response);
+    string result = reader.ReadToEnd();
+    DateTime ServerTime = DateTime.Parse(JsonConvert.DeserializeObject<string>(result));
 }
 
 ```
@@ -178,21 +214,29 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetSmsDelivery";
-using (var client = new WebClient())
-{
-    var values = new NameValueCollection();
-    
-    List<int> nikIds = new List<int>();
-    nikIds.Add(); // Add the Id which is related to Sent Sms
 
-    values["apiKey"] = "Your Api Key";
-    values["nikIds"] = nikIds; // Array of ids related to each SMS that you sent. This Ids has been sent to you as response of sendSingle or group SMS
-
-    var response = client.UploadValues(url, values);
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
 	
-    var resultString = Encoding.Default.GetString(response);
-    List<string> result = JsonConvert.DeserializeObject<List<string>>(responseString);
+List<string> nikIdsList = new List<string>();
+nikIdsList.Add(""); // Add the Id which is related to Sent Sms
+
+string nikIds = "";
+nikIdsList.ForEach(item => nikIds += item + ",");
+nikIds = nikIds.Substring(0, nikIds.Length - 1);
+
+string url = BaseUrl + $"GetSmsDelivery?apiKey={apiKey}&nikIds={nikIds}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
+{
+    string result = reader.ReadToEnd();
+    string[] smsResults = JsonConvert.DeserializeObject<string[]>(result);
+
     foreach(var item in result) {
         if (result.Equals("3"))
             Console.WriteLine('sent successfully');
@@ -203,6 +247,7 @@ using (var client = new WebClient())
             Console.WriteLine('message not sent')
         }
     }
+
 }
 
 
@@ -214,21 +259,27 @@ using (var client = new WebClient())
 
 ```c#
 
-string url =  "http://niksms.com/GetSmsDeliveryWithClientId";
-using (var client = new WebClient())
-{
-    var values = new NameValueCollection();
-    
-    List<int> yourIds = new List<int>();
-    yourIds.Add(); // Add the Id which is related to Sent Sms
-
-    values["apiKey"] = "Your Api Key";
-    values["yourIds"] = yourIds; // Array of ids related to each SMS that you sent. This Ids are numbers which you used in sending SMS.
-
-    var response = client.UploadValues(url, values);
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
 	
-    var resultString = Encoding.Default.GetString(response);
-    List<string> result = JsonConvert.DeserializeObject<List<string>>(responseString);
+List<string> yourIdsList = new List<string>();
+yourIdsList.Add(""); // Add your Id which is related to Sent Sms
+
+string yourIds = "";
+yourIdsList.ForEach(item => yourIds += item + ",");
+yourIds = yourIds.Substring(0, yourIds.Length - 1);
+string url = BaseUrl + $"GetSmsDeliveryWithClientId?apiKey={apiKey}&yourIds={yourIds}";
+
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
+{
+    string result = reader.ReadToEnd();
+    List<string> smsResults = JsonConvert.DeserializeObject<List<string>>(result);
+
     foreach(var item in result) {
         if (result.Equals("3"))
             Console.WriteLine('sent successfully');
@@ -248,31 +299,38 @@ using (var client = new WebClient())
 <p>You can get received SMS to your private line using bellow code.</p>
 
 ```c#
-    public class ReceivedMessage  // You can use this classs to deserilize result
+    public class ReceivedMessage  // You can use this class to deserialize json result
     {
-        public string SenderNumber{ get; set;}
-        public string Message{ get; set;}
-        public string ReceiveDate{ get; set;}
+        public string Id { get; set; }
+        public string SenderNumber { get; set; }
+        public string ReceiveNumber { get; set; }
+        public string Message { get; set; }
+        public string ReceiveDate { get; set; }
+        public bool IsRelayed { get; set; }
     }
 ```
 
 ```c#
 
-string url =  "http://niksms.com/GetReceivedSms";
-using (var client = new WebClient())
-{
-    var values = new NameValueCollection();
-    values["apiKey"] = "Your Api Key";
+string BaseUrl = "http://api.niksms.com/";
+string apiKey = "Your Api Key";
 	
-    var response = client.UploadValues(url, values);
-	
-    var responseString = Encoding.Default.GetString(response);
-    var listOfMessages = JsonConvert.DeserializeObject<List<ReceivedMessage>>(responseString);
+string url = BaseUrl + $"GetReceivedSms?apiKey={apiKey}";
 
-    foreach(var item in listOfMessages){
-        Console.WriteLine($"Sender number is {item.SenderNumber}");
-        Console.WriteLine($"Message is {item.Message}");
-        Console.WriteLine($"Receive time is {item.ReceiveDate}");
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+using (Stream stream = response.GetResponseStream())
+using (StreamReader reader = new StreamReader(stream))
+{
+    string result = reader.ReadToEnd();
+    string result = reader.ReadToEnd();
+    if (result.Contains("[]"))
+        Console.WriteLine("No Message Received");
+    else
+    {
+        List<ReceivedMessage> listOfMessages = JsonConvert.DeserializeObject<List<ReceivedMessage>>(result);
     }
 }
 
@@ -299,6 +357,3 @@ using (var client = new WebClient())
 ### اطلاعات بیشتر
 برای کسب اطلاعات بیشتر به وب سایت <a target='_blank' href='https://niksms.com'>نیک اس ام اس</a> مراجعه فرمایید.
 </div>
-
-
-
